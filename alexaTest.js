@@ -63,7 +63,9 @@ const GetNewFactHandler = {
   },
   async handle(handlerInput) {
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-    console.log();
+    const intent = handlerInput.requestEnvelope.request.intent;
+    console.log(handlerInput);
+    console.log(intent);
     // gets a random fact by assigning an array to the variable
     // the random item from the array will be selected by the i18next library
     // the i18next library is set up in the Request Interceptor
@@ -87,8 +89,8 @@ const GetNewFactHandler = {
     //     .listen("Would you like another fact?");
     //   this.emit(":responseReady");
 
-    const randomFact = requestAttributes.t("FACTS"); //todo:
-    console.log(randomFact);
+    // const randomFact = requestAttributes.t("FACTS"); //todo:
+    // console.log(randomFact);
     // concatenates a standard message with the random fact
     // const speakOutput = requestAttributes.t("GET_FACT_MESSAGE") + randomFact;
 
@@ -103,6 +105,63 @@ const GetNewFactHandler = {
         // ask for another fact without first re-opening the skill
         .reprompt(requestAttributes.t("HELP_REPROMPT"))
         .withSimpleCard(requestAttributes.t("SKILL_NAME"), workFitResponse)
+        .getResponse()
+    );
+  },
+};
+
+// AddWorkoutIntent
+const AddWorkoutHandler = {
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    // checks request type
+    return (
+      request.type === "LaunchRequest" ||
+      (request.type === "IntentRequest" &&
+        request.intent.name === "AddWorkoutIntent")
+    );
+  },
+  async handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    const intent = handlerInput.requestEnvelope.request.intent;
+    console.log(handlerInput);
+    console.log(intent);
+    //todo: add code to handle workout type here
+
+    console.log("hitting  workout type");
+    // slots:
+    // { workoutType:
+    //    { name: 'workoutType',
+    //      value: 'row',
+    const slotValue =
+      handlerInput.requestEnvelope.request.intent.slots.workoutType.value;
+    console.log("your said ", slotValue);
+    // console.log(`requestAttributes ${JSON.stringify(requestAttributes)}`);
+    Alexa.getSlotValue(handlerInput.requestEnvelope, 'number'),
+
+    const theResult = await httpGet(query);
+
+    console.log("sent     : " + query);
+    console.log("received : " + theResult);
+
+    // const randomFact = requestAttributes.t("FACTS"); //todo:
+    // concatenates a standard message with the random fact
+    // const speakOutput = requestAttributes.t("GET_FACT_MESSAGE") + randomFact;
+
+    const workFitResponse = theResult;
+    console.log("hitting workfitResponse");
+    console.log(workFitResponse);
+    // const speakOutput = randomFact;
+    return (
+      handlerInput.responseBuilder
+        .speak("your workout is logged")
+        // Uncomment the next line if you want to keep the session open so you can
+        // ask for another fact without first re-opening the skill
+        .reprompt(requestAttributes.t("HELP_REPROMPT"))
+        .withSimpleCard(
+          requestAttributes.t("SKILL_NAME"),
+          "your workout is logged"
+        )
         .getResponse()
     );
   },
@@ -224,6 +283,7 @@ const skillBuilder = Alexa.SkillBuilders.custom();
 exports.handler = skillBuilder
   .addRequestHandlers(
     GetNewFactHandler, //invokes the GetNewFactIntent
+    AddWorkoutHandler,
     HelpHandler,
     ExitHandler,
     FallbackHandler,
